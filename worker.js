@@ -288,10 +288,19 @@ function coordsIntersect(x, y){
   }
   return false;
 }
+function openTab(tab){
+  var tabs = document.getElementsByClassName("tab-result");
+  for (var i = 0;i<tabs.length;i++){
+    tabs[i].style.display = "none";
+  }
+  document.getElementById(tab).style.display = "inline-block";
+}
 var bondLength;
 var atoms;
 function setup(){
-  createCanvas(displayWidth-400,displayHeight-200);
+  var ww = ((windowWidth * 4/5 > 1000) ? windowWidth * 4/5 : 1000);
+  var wh = 600;
+  createCanvas(ww,wh);
   bondLength = 80;
   angleMode(DEGREES);
   textAlign(CENTER,CENTER);
@@ -302,8 +311,6 @@ function setup(){
   eleString = "HHeLiBeBCBOFNeNaMgAlSiPSClArKCa";
   moleculeMass = 0;
   master_arr = [];
-  input = prompt("Enter the chemical formula");
-  ele_raw = input.split("(");
 
   elementData.push(["H",1.00794,color(255,0,0),"Hydrogen",1,[1],[-1,1]]);
   elementData.push(["He",4.00260,color(200,136,0),"Helium",2,[2],[0]]);
@@ -353,32 +360,7 @@ function setup(){
     ["HSO4","hydrogen sulfate",-1],
     ["S2O3","thiosulfate",-2]
   ];
-  for (var i = 0;i<ele_raw.length;i++){
-    var multiplier = 1;
-    var cur = ele_raw[i];
-    var len = 0;
-    if (input.indexOf(")") != -1 && cur.substring(cur.length-1,cur.length) != ")"){
-      while (!isNaN(parseInt(cur.substring(cur.length-1-len,cur.length)))){
-        len++;
-      }
-    }
-    var closer = cur.indexOf(")");
 
-    if (!isNaN(parseInt(cur.substring(closer+1)))){
-      multiplier = parseInt(cur.substring(closer+1));
-    }
-    if (closer != -1){
-      cur = cur.substring(0,closer);
-    }
-    var n = getComposition(cur,multiplier);
-    addValuesToArray(n,master_arr);
-  }
-  for (var i = 0;i<master_arr.length;i++){
-    for (var j = 0;j<master_arr[i][1];j++){
-      atoms.push(new Atom(master_arr[i][0]));
-    }
-  }
-  console.log(atoms);
 
   var display_arr = removeDuplicates(master_arr);
   var indis = [];
@@ -401,72 +383,7 @@ function setup(){
   //testH.setPos(width/2,height/2);
   //testH2.setPos(width/2+180,height/2+70);
 
-  for (var i = 0;i<atoms.length;i++){
-    console.log("current atom (i): " + atoms[i].getId());
-    for (var j = 0;j<atoms.length;j++){
-      console.log("\tcurrent atom (j): " + atoms[j].getId());
-      if (atoms[i].canBond() && j !== i){
-        console.log("\t " + atoms[i].getId() + " can bond");
-				if (atoms[j].canBond()){
-          console.log("\t " + atoms[j].getId() + " can bond");
-					atoms[i].bond(atoms[j],1);
-          console.log("\t" + atoms[i].getId() + " just bonded to " + atoms[j].getId());
-					if (!atoms[i].hasSetPos()){
-						atoms[i].setPos(width/2,height/2);
-						console.log("set " + atoms[i].getId() + "'s position");
-					}
-					if (!atoms[j].hasSetPos()){
-						var numBondsI = atoms[i].getNumBondedTo();
-						var bondAng = [90,270,0,180];
-            var coords = [[atoms[i].getX()+cos(bondAng[0])*bondLength,atoms[i].getY()+sin(bondAng[0])*bondLength],[atoms[i].getX()+cos(bondAng[1])*bondLength,atoms[i].getY()+sin(bondAng[1])*bondLength],[atoms[i].getX()+cos(bondAng[2])*bondLength,atoms[i].getY()+sin(bondAng[2])*bondLength],[atoms[i].getX()+cos(bondAng[3])*bondLength,atoms[i].getY()+sin(bondAng[3])*bondLength]];
-						var angToBe = numBondsI-1%4;
-            var selector;
 
-            if (!coordsIntersect(coords[angToBe][0],coords[angToBe][1])){
-              selector = angToBe;
-            }
-            if (!coordsIntersect(coords[0][0],coords[0][1])){
-              selector = 0;
-            }else if (!coordsIntersect(coords[1][0],coords[1][1])){
-              selector = 1;
-            }else if (!coordsIntersect(coords[2][0],coords[2][1])){
-              selector = 2;
-            }if (!coordsIntersect(coords[3][0],coords[3][1])){
-              selector = 3;
-            }
-						/*for (var k = 0;k<atoms.length;i++){
-						  if (k !== j && atoms[k].hasSetPos()){
-                console.log(atoms[k]);
-                console.log(atoms[i]);
-                console.log(atoms[j]);
-							/*if (Math.round(atoms[k].getX()) === Math.round(atoms[i].getX() + cos(bondAng[angToBe]) * bondLength) && Math.round(atoms[k].getY()) === Math.round(atoms[i].getY() + sin(bondAng[angToBe]) * bondLength)){
-							  while (Math.round(atoms[k].getX()) === Math.round(atoms[i].getX() + cos(bondAng[angToBe]) * bondLength) && Math.round(atoms[k].getY()) === Math.round(atoms[i].getY() + sin(bondAng[angToBe]) * bondLength)){
-								angToBe++;
-								if (angToBe === 4){
-								  angToBe = 0;
-								}
-							  }
-							}
-						  }
-						}*/
-						atoms[j].setPos(atoms[i].getX()+cos(bondAng[selector])*bondLength, atoms[i].getY() + sin(bondAng[selector]) * bondLength);
-						console.log("set " + atoms[j].getId() + " at " + (numBondsI-1)*90 + "deg from " + atoms[i].getId());
-					}
-				}else{
-          console.log("\t\t" + atoms[j].getId() + " has " + atoms[j].data[5][atoms[j].data[5].length-1] + " valence electrons and cannot bond");
-				}
-      }else{
-        console.log("\t" + atoms[i].getId() + " has " + atoms[i].data[5][atoms[i].data[5].length-1] + " valence electrons and cannot bond");
-			}
-    }
-  }
-  for (var i = 0;i<atoms.length;i++){
-    for (var j = 0;j<atoms.length;j++){
-       if (i !== j && atoms[i].canBond() && atoms[j].canBond()){
-        atoms[i].bond(atoms[j],1);
-       }
-    }
-  }
 	for (var i = 0;i<atoms.length;i++){
 		if (!atoms[i].hasSetPos()){
 			document.getElementById("warning-DNE").innerHTML = "<p>Molecule cannot be drawn</p>";
@@ -514,6 +431,9 @@ function draw(){
 		}
   }
   pop();
+  fill(255);
+  stroke(0);
+  rect(0,0,width,height);
   fill(0,0,0);
   textSize(25);
   text(input,width/2, 80);

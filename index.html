@@ -10,7 +10,19 @@
       body {
         margin: 2em
       }
-
+      #window {
+        /*position:fixed;*/
+      }
+      #scripter {
+        display:inline-block;
+        float:left;
+        right:0;
+      }
+      #menu-add {
+        display:inline-block;
+        left: 0;
+        float:right;
+      }
     </style>
   </head>
   <body>
@@ -28,21 +40,36 @@
     </table>
     <p id="mass-p"></p>
 		<div id="warning-DNE"></div>
-    <a id="downloader" download="image.png"><button type="button" class="btn" onClick="download()">Download image</button></a>
-    <div id="scripter">
-      <script src="worker.js"></script>
-    </div>
-    <div class="card">
+    <p></p>
+    <div id="window">
+      <div id="scripter">
+        <script src="worker.js"></script>
+      </div>
+      <div id="menu-add" class="card">
 
-      <div class="card-header">
-        <div class="card-title h5">Title</div>
-        <div class="card-subtitle text-gray">Subtitle</div>
-      </div>
-      <div class="card-body">
-        body body body
-      </div>
-      <div class="card-footer">
-        <button class="btn btn-primary">Action</button>
+        <div class="card-header">
+          <div class="card-title h5">Title aaaaaaaaaaaaaa</div>
+          <div class="card-subtitle text-gray">Subtitle</div>
+        </div>
+        <div class="card-body">
+          <ul class="tab tab-block">
+            <li class="tab-item">
+              <a href="#edit" onclick="openTab('edit')">Edit</a>
+            </li>
+            <li class="tab-item" onclick="openTab('export')">
+              <a href="#export">Export</a>
+            </li>
+          </ul>
+          <div id="edit" class="tab-result" style="display:inline-block">
+
+          </div>
+          <div id="export" class="tab-result" style="display:none">
+            <a id="downloader" download="image.png"><button type="button" class="btn btn-primary" onClick="download()">Download image</button></a>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-primary">Action</button>
+        </div>
       </div>
     </div>
   </body>
