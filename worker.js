@@ -288,12 +288,25 @@ function coordsIntersect(x, y){
   }
   return false;
 }
-function openTab(tab){
-  var tabs = document.getElementsByClassName("tab-result");
-  for (var i = 0;i<tabs.length;i++){
-    tabs[i].style.display = "none";
+function openTab(tabr, act){
+  var tabrs = document.getElementsByClassName("tab-result");
+  var tabs = document.getElementsByClassName("tab-item");
+  console.log(1);
+  for (var i = 0;i<tabrs.length;i++){
+    tabrs[i].style.display = "none";
+    console.log("a");
   }
-  document.getElementById(tab).style.display = "inline-block";
+  for (var i = 0;i<tabs.length;i++){
+    if (tabs[i].classList.contains("active")){tabs[i].classList.remove("active");}
+    console.log(tabs[i].classList);
+  }
+  for (var i = 0;i<tabs.length;i++){
+    console.log(tabs[i].classList);
+  }
+
+  act.currentTarget.classList.add("active");
+  document.getElementById(tabr).style.display = "inline-block";
+  console.log("done");
 }
 var bondLength;
 var atoms;
@@ -421,8 +434,8 @@ function setup(){
 }
 
 function draw(){
-  background(255);
-  push()
+  background(255,255,255);
+  push();
   translate(-shiftX, -shiftY);
   //var t = Math.min(millis()/2000,atoms.length);
   for (var i = 0;i<atoms.length;i++){
@@ -436,5 +449,5 @@ function draw(){
   rect(0,0,width,height);
   fill(0,0,0);
   textSize(25);
-  text(input,width/2, 80);
+  text("input",width/2, 80);
 }
