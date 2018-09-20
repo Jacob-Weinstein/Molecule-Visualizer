@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <style>
       body {
         margin: 2em
@@ -17,11 +19,22 @@
         display:inline-block;
         float:left;
         right:0;
+        position:absolute;
       }
       #menu-add {
         display:inline-block;
         left: 0;
         float:right;
+      }
+      #toaster {
+        position: relative;
+      }
+      div.btn.btn-clear.float-right {
+        background-color: transparent;
+      }
+      .mh {
+        max-height: 80px;
+        overflow:auto;
       }
     </style>
   </head>
@@ -44,11 +57,17 @@
     <div id="window">
       <div id="scripter">
         <script src="worker.js"></script>
+        <div id="toaster"></div>
       </div>
       <div id="menu-add" class="card">
 
         <div class="card-header">
-          <div class="card-title h5">Title aaaaaaaaaaaaaa</div>
+          <div class="card-title h5">
+            <div class="form-group">
+              <!--<label class="form-label" for="name">Name</label>-->
+              <input class="form-input" id="name" placeholder="Name">
+            </div>
+          </div>
           <div class="card-subtitle text-gray">Subtitle</div>
         </div>
         <div class="card-body">
@@ -61,7 +80,24 @@
             </li>
           </ul>
           <div id="edit" class="tab-result" style="display:inline-block">
-            edit
+            <div class="form-group">
+              <select class="form-select mh" id="selector">
+                <option hidden>Choose an atom</option>
+                <option value="H">Hydrogen</option>
+                <option value="He">Helium</option>
+                <option value="Li">Lithium</option>
+                <option value="Be">Beryllium</option>
+                <option value="B">Boron</option>
+                <option value="C">Carbon</option>
+                <option value="N">Nitrogen</option>
+                <option value="O">Oxygen</option>
+                <option value="F">Fluorine</option>
+                <option value="Ne">Neon</option>
+              </select>
+            </div>
+            <div id="firstAtom">
+              <button id="add-atom" class="btn btn-primary" onclick="addAtom()">Add atom</button>
+            </div>
           </div>
           <div id="export" class="tab-result" style="display:none">
             <a id="downloader" download="image.png"><button type="button" class="btn" onClick="download()">Download image</button></a>
@@ -72,5 +108,6 @@
         </div>
       </div>
     </div>
+
   </body>
 </html>

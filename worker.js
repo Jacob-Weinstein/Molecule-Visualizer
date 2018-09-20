@@ -125,7 +125,7 @@ Atom.prototype.setX = function(n){
 Atom.prototype.setY = function(n){
   this.y = n;
 }
-Atom.prototype.setPos = function(newX, newY){
+Atom.prototype.setPos2D = function(newX, newY){
   this.x = newX;
   this.y = newY;
   this.setterP = true;
@@ -153,7 +153,7 @@ Atom.prototype.display = function(){
   }
   textSize(20);
   textAlign(CENTER,CENTER);
-  //text(this.id,this.x,this.y)
+  text(this.id,this.x,this.y)
   for (var i = 0;i<this.bonds.length;i++){
     this.bonds[i].display();
   }
@@ -181,9 +181,37 @@ function copyData(d){
   return newArray;
 }
 //adapted from Tovask at https://stackoverflow.com/questions/11112321/how-to-save-canvas-as-png-image
+var toasts = [];
 function download(){
+    var duration = 5000;
+    var toaster = document.getElementById("toaster");
+    var newToast = document.createElement("div");
+    newToast.innerHTML = "<div class=\"toast toast-success\">Image downloaded</div>";
+    newToast.classList.add("toast");
+    newToast.classList.add("toast-success");
+    newToast.classList.add("animated");
+    newToast.classList.add("0.5s");
+    newToast.classList.add("zoomInUp");
     document.getElementById("downloader").download = "image.png";
     document.getElementById("downloader").href = document.getElementById("defaultCanvas0").toDataURL("image/png").replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+    setTimeout(function(){
+      newToast.classList.remove("animated");
+      newToast.classList.remove("0.5s");
+      newToast.classList.remove("zoomInUp");
+      newToast.classList.add("animated");
+      newToast.classList.add("1.5s");
+      newToast.classList.add("fadeOut");
+      //newToast.style.display = "none";
+    },duration);
+    if (toaster.childNodes.length < 3){
+      toaster.appendChild(newToast);
+      setTimeout(function(){
+        toaster.removeChild(newToast);
+      },duration+1500);
+    }
+}
+function showToast(){
+
 }
 function removeDuplicates(values){
   for (var i = 0;i<values.length;i++){
@@ -310,8 +338,9 @@ function openTab(tabr, act){
 }
 var bondLength;
 var atoms;
+var molName;
 function setup(){
-  var ww = ((windowWidth * 4/5 > 1000) ? windowWidth * 4/5 : 1000);
+  var ww = ((windowWidth * 2/3 > 1000) ? windowWidth * 2/3 : 1000);
   var wh = 600;
   createCanvas(ww,wh);
   bondLength = 80;
@@ -375,7 +404,7 @@ function setup(){
   ];
 
 
-  var display_arr = removeDuplicates(master_arr);
+  var display_arr = (master_arr);
   var indis = [];
   for (var i = 0;i<display_arr.length;i++){
     moleculeMass += display_arr[i][1]*findMass(display_arr[i][0]);
@@ -432,22 +461,52 @@ function setup(){
   }*/
   //checkForResize();
 }
+function addAtom(){
+  var a = document.getElementById("selector").value;
+  if (a !== "Choose an atom"){
+    if (atoms.length == 0){
+      atoms.push(new Atom(a));
+      atoms[0].setPos2D(0,0);
+      console.log(a);
+    }else{
 
+    }
+  }
+}
 function draw(){
+  molName = document.getElementById("name").value;
+  var subscript = [], upper = [];
+  /*for (var i = 0;i<molName.length;i++){
+    if (!isNaN(molName.substr(i,1))){
+      subscript.push(molName.substr(i,1));
+      upper.push(" ");
+    }else{
+      subscript.push(" ");
+      upper.push(molName.substr(i,1));
+    }
+  }*/
   background(255,255,255);
+  fill(255);
+  stroke(0);
+  rect(0,0,width-2,height-2);
   push();
-  translate(-shiftX, -shiftY);
+  translate(width/2, height/2);
   //var t = Math.min(millis()/2000,atoms.length);
   for (var i = 0;i<atoms.length;i++){
 		if (atoms[i].hasSetPos()){
 			atoms[i].display();
+      console.log("displayed");
 		}
   }
   pop();
-  fill(255);
-  stroke(0);
-  rect(0,0,width,height);
   fill(0,0,0);
   textSize(25);
-  text("input",width/2, 80);
+  /*text(upper,width/2, 80);
+  for (var i = 0;i<upper.length;i++){
+    text(upper[i],width/2-(i-upper.length/2)*25,80);
+    text(subscript[i],width/2-(i-upper.length/2)*25,85);
+  }*/
+  //text("1234567890",width/2,100);
+  text(molName,width/2,85);
+  ellipse(100,100,40,40);
 }
