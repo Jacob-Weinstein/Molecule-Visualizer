@@ -8,6 +8,7 @@
 */
 var moleculeMass;
 var input;
+var selected = [];
 
 var polyAtomics;
 var eleString;
@@ -31,9 +32,9 @@ Bond.prototype.changeNum = function(n){
   this.num = n;
 };
 Bond.prototype.display = function(){
-  var midpoint = {x: (this.a1.getX() + this.a2.getX()) / 2, y: (this.a1.getY() + this.a2.getY()) / 2};
-  var distance = dist(this.a1.getX(), this.a1.getY(), this.a2.getX(), this.a2.getY());
-  var ang = atan2(this.a2.getY() - this.a1.getY(),this.a2.getX() - this.a1.getX());
+  var midpoint = {x: (this.a1.getPos2D().x + this.a2.getPos2D().x) / 2, y: (this.a1.getPos2D().y + this.a2.getPos2D().y) / 2};
+  var distance = dist(this.a1.getPos2D().x, this.a1.getPos2D().y, this.a2.getPos2D().x, this.a2.getPos2D().y);
+  var ang = atan2(this.a2.getPos2D().y - this.a1.getPos2D().y, this.a2.getPos2D().x - this.a1.getPos2D().x);
   push();
   stroke(0,0,0);
   strokeWeight(2);
@@ -53,9 +54,8 @@ Bond.prototype.getA2 = function(){
 }
 function Atom(abbr){
   this.bonds = [];
-  this.x = null;
-  this.y = null;
-  this.setterP = false;
+  this.pos2D = {x: null, y: null};
+  this.pos3D = {x: null, y: null, z: null};
   var rawData = findData(abbr);
   this.data = JSON.parse(JSON.stringify(rawData));//protons, electron configuration, ox. states
   this.id = this.data[0] + atoms.length;
@@ -63,14 +63,8 @@ function Atom(abbr){
 Atom.prototype.getBonds = function(){
   return this.bonds;
 }
-Atom.prototype.getX = function(){
-  return this.x;
-}
-Atom.prototype.getY = function(){
-  return this.y;
-}
-Atom.prototype.getPos = function(){
-  return [this.x, this.y];
+Atom.prototype.getPos2D = function(){
+  return this.pos2D;
 }
 Atom.prototype.getId = function(){
   return this.id;
@@ -119,23 +113,27 @@ Atom.prototype.bond = function(other, num){
     }
   }
 }
-Atom.prototype.setX = function(n){
-  this.x = n;
-}
-Atom.prototype.setY = function(n){
-  this.y = n;
-}
 Atom.prototype.setPos2D = function(newX, newY){
-  this.x = newX;
-  this.y = newY;
-  this.setterP = true;
+  this.pos2D.x = newX;
+  this.pos2D.y = newY;
   eleCoords.push({x: newX, y: newY});
-  console.log(this.id + " has been set to (" + this.x + "," + this.y + ")");
+  console.log(this.id + " has been set to (" + this.pos2D.x + "," + this.pos2D.y + ")");
 }
-Atom.prototype.hasSetPos = function(){
-  return this.setterP;
+Atom.prototype.setPos3D = function(newX, newY, newZ){
+  this.pos3D.x = newX;
+  this.pos3D.y = newY;
+  this.pos3D.z = newZ;
 }
-Atom.prototype.display = function(){
+Atom.prototype.hasSetPos2D = function(){
+  return this.pos2D.x != null && this.pos2D.y != null;
+}
+Atom.prototype.hasSetPos3D = function(){
+  return this.pos3D.x != null && this.pos3D.y != null && this.pos3D.z != null;
+}
+Atom.prototype.hover2D = function(){
+  return dist(mouseX, mouseY, this.pos2D.x + width / 2, this.pos2D.y + height / 2) < res * 40;
+}
+Atom.prototype.display2D = function(){
   push();
   var fc = findData(this.data[0])[2];
   fill(fc);
@@ -145,7 +143,7 @@ Atom.prototype.display = function(){
 	}else{
 		noStroke();
 	}
-  ellipse(this.x,this.y,40*res,40*res);
+  ellipse(this.pos2D.x,this.pos2D.y,40*res,40*res);
   if (this.data[0] === "C"){
     fill(255,255,255);
   }else{
@@ -153,7 +151,7 @@ Atom.prototype.display = function(){
   }
   textSize(20);
   textAlign(CENTER,CENTER);
-  text(this.id,this.x,this.y)
+  text(this.id,this.pos2D.x,this.pos2D.y)
   for (var i = 0;i<this.bonds.length;i++){
     this.bonds[i].display();
   }
@@ -213,23 +211,7 @@ function download(){
 function showToast(){
 
 }
-function removeDuplicates(values){
-  for (var i = 0;i<values.length;i++){
-    for (var j = 0;j<values.length;j++){
-      if (i != j && values[i][0] === values[j][0]){
-        values[i][1] += values[j][1];
-        values[j][1] = 0;
-      }
-    }
-  }
-  var newNewArr = [];
-  for (var i = 0;i<values.length;i++){
-    if (values[i][1] > 0){
-      newNewArr.push(values[i]);
-    }
-  }
-  return newNewArr;
-}
+
 function addValuesToArray(values, array){
   for (var i = 0;i<values.length;i++){
     array.push(values[i]);
@@ -461,12 +443,17 @@ function setup(){
   }*/
   //checkForResize();
 }
+function updateComp(){
+
+}
 function addAtom(){
   var a = document.getElementById("selector").value;
   if (a !== "Choose an atom"){
     if (atoms.length == 0){
       atoms.push(new Atom(a));
+      updateComp();
       atoms[0].setPos2D(0,0);
+      atoms[0].setPos3D(0,0,0);
       console.log(a);
     }else{
 
@@ -493,11 +480,29 @@ function draw(){
   translate(width/2, height/2);
   //var t = Math.min(millis()/2000,atoms.length);
   for (var i = 0;i<atoms.length;i++){
-		if (atoms[i].hasSetPos()){
-			atoms[i].display();
+		if (atoms[i].hasSetPos2D()){
+      if (atoms[i].hover2D() && mouseIsPressed){
+        if (!selected.includes(atoms[i])){
+          selected.push(atoms[i]);
+          mouseIsPressed = false;
+          console.log(atoms[i].getId() + " selected");
+        }
+      }
+			atoms[i].display2D();
       console.log("displayed");
 		}
   }
+  if (selected.length > 2){
+    selected = selected.slice(selected.length-3,selected.length-1);
+  }
+  push();
+  noFill();
+  stroke(0,0,0);
+  strokeWeight(4);
+  for (var i = 0;i<selected.length;i++){
+    ellipse(selected[i].getPos2D().x,selected[i].getPos2D().y,40*res,40*res);
+  }
+  pop();
   pop();
   fill(0,0,0);
   textSize(25);

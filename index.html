@@ -36,6 +36,9 @@
         max-height: 80px;
         overflow:auto;
       }
+      .pointer {
+        cursor: context-menu;
+      }
     </style>
   </head>
   <body>
@@ -65,18 +68,18 @@
           <div class="card-title h5">
             <div class="form-group">
               <!--<label class="form-label" for="name">Name</label>-->
-              <input class="form-input" id="name" placeholder="Name">
+              <input class="form-input" id="name" placeholder="Title">
             </div>
           </div>
           <div class="card-subtitle text-gray">Subtitle</div>
         </div>
         <div class="card-body">
           <ul class="tab tab-block">
-            <li class="tab-item active">
-              <a href="#" onclick="openTab('edit',event)">Edit</a>
+            <li class="tab-item pointer active">
+              <a onclick="openTab('edit',event)">Edit</a>
             </li>
-            <li class="tab-item">
-              <a href="#" onclick="openTab('export',event)">Export</a>
+            <li class="tab-item pointer">
+              <a onclick="openTab('export',event)">View</a>
             </li>
           </ul>
           <div id="edit" class="tab-result" style="display:inline-block">
@@ -100,7 +103,14 @@
             </div>
           </div>
           <div id="export" class="tab-result" style="display:none">
+            <div class="form-group">
+              <label class="form-switch">
+                <input type="checkbox" id="view-type">
+                <i class="form-icon"></i> 3D View
+              </label>
+            </div>
             <a id="downloader" download="image.png"><button type="button" class="btn" onClick="download()">Download image</button></a>
+
           </div>
         </div>
         <div class="card-footer">
