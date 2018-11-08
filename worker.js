@@ -40,11 +40,17 @@ Bond.prototype.display = function(){
   push();
   stroke(0,0,0);
   strokeWeight(2);
-  translate(midpoint.x,midpoint.y);
-  rotate(ang-90);
-  for (var i = 0;i<this.num;i++){
-    line(distance/4-this.num/2*5+10*i,distance/4+10*i,-distance/4-this.num/2*5+10*i,-distance/4+10*i);
+  //translate(midpoint.x,midpoint.y);
+  //translate(this.a1.pos2D.x,this.a2.pos2D.y);
+  //rotate(ang-90);
+  /*for (var i = 0;i<this.num;i++){
+    line(-this.num/2*5+5*i,-distance,-this.num/2*5+5*i,0);
+    //console.log("i: " +i);
     //line(midpoint.x - (distance / 4) * cos(ang), midpoint.y - (distance / 4) * sin(ang), midpoint.x - (distance / 4) * cos(ang + 180), midpoint.y - (distance / 4) * sin(ang + 180));
+  }*/
+  for (var i = 0;i<this.num;i++){
+    //line(-distance/4-this.num/2*5+5*i,-distance/4,distance/4-this.num/2*5+5*i,distance/4);
+    line(this.a1.getPos2D().x+cos(ang+10*i)*20, this.a1.getPos2D().y+sin(ang+10*i)*20, this.a2.getPos2D().x-cos(180+ang+10*i)*20+10*i, this.a2.getPos2D().y-sin(180+ang+10*i)*20);
   }
   pop();
   this.displayed = true;
@@ -59,7 +65,7 @@ Bond.prototype.getA2 = function(){
   return this.a2;
 }
 function Atom(abbr){
-  this.bonds = [];
+  //this.bonds = [];
   this.pos2D = {x: null, y: null};
   this.pos3D = {x: null, y: null, z: null};
   var rawData = findData(abbr);
@@ -70,7 +76,13 @@ Atom.prototype.getMass = function(){
   return this.data[1];
 }
 Atom.prototype.getBonds = function(){
-  return this.bonds;
+  var b = [];
+  for (var i = 0;i<bonds.length;i++){
+    if (bonds[i].getA1().getId() === this.id || bonds[i].getA2().getId() === this.id){
+      b.push(bonds[i]);
+    }
+  }
+  return b;
 }
 Atom.prototype.getPos2D = function(){
   return this.pos2D;
@@ -87,11 +99,12 @@ Atom.prototype.canBond = function(b){
   return (this.data[5][this.data[5].length-1] + b) <= 8;
 }
 Atom.prototype.getNumBondedTo = function(){//not even sure what this was supposed to do, possibly deprecated due to addition of electron configs
-  return this.bonds.length;
+  return this.getBonds().length;
 }
 Atom.prototype.isBondedTo = function(other){//6.4.18 11:23am: doesn't work
-  for (var i = 0;i<this.bonds.length;i++){
-    if (this.bonds[i].getA2().getId() === other.getId()){
+  var bs = this.getBonds();
+  for (var i = 0;i<bs.length;i++){
+    if (bs[i].getA2().getId() === other.getId() || bs[i].getA1().getId() === other.getId()){
       return true;
     }
   }
@@ -105,22 +118,28 @@ Atom.prototype.setValence = function(num){
   this.data[5][this.data[5].length-1] = num;
 }
 Atom.prototype.bond = function(other, num){
-  if (this.canBond(num) && !this.isBondedTo(other) && other.getId() !== this.getId()){
-		this.bonds.push(new Bond(this,other,num));
-	  this.setValence(this.getValence() + num);
-	  console.log("added " + num + " electrons to " + this.id);
-		console.log(this.id + " bonded to " + other.id);
-	  if (!other.isBondedTo(this)){
-			other.bond(this,num);
-	  }
-  }
   if (this.canBond(num) && this.isBondedTo(other) && other.getId() !== this.getId()){
-    for (var i = 0;i<this.bonds.length;i++){
-      if (this.bonds[i].getA2().getId() === other.getId() && this.bonds[i].getA2().getId() !== num){
-        this.bonds[i].changeNum(this.bonds[i].getNum() + 1);
+    var temp;
+    for (var i = 0;i<bonds.length;i++){
+      if (bonds[i].getA2().getId() === other.getId() || bonds[i].getA1().getId() === other.getId()){
+        temp = bonds[i];
+        //bonds[i].changeNum(this.getBonds()[i].getNum() + 1);
       }
     }
+    temp.changeNum(temp.getNum()+1);
   }
+  if (this.canBond(num) && !this.isBondedTo(other) && other.getId() !== this.getId()){
+		bonds.push(new Bond(this,other,num));
+    console.log(bonds);
+	  this.setValence(this.getValence() + num);
+    other.setValence(other.getValence() + num);
+	  console.log("added " + num + " electrons to " + this.id);
+		console.log(this.id + " bonded to " + other.id);
+	  /*if (!other.isBondedTo(this)){
+			other.bond(this,num);
+	  }*/
+  }
+
 }
 Atom.prototype.setPos2D = function(newX, newY){
   this.pos2D.x = newX;
@@ -161,12 +180,12 @@ Atom.prototype.display2D = function(){
   textSize(20);
   textAlign(CENTER,CENTER);
   text(this.id,this.pos2D.x,this.pos2D.y)
-  for (var i = 0;i<this.bonds.length;i++){
+  //for (var i = 0;i<this.bonds.length;i++){
     //if (!this.bonds[i].displayed){
     //  console.log("same id");
-      this.bonds[i].display();
+    //  this.bonds[i].display();
     //}
-  }
+  //}
   pop();
 }
 function findMass(id){//deprecated, will remove later and replace with findData(id)
@@ -327,7 +346,7 @@ function openTab(tabr, act){
   console.log("done");
 }
 var bondLength;
-var atoms;
+var atoms = [], bonds = [];
 var molName;
 function setup(){
   var ww = ((windowWidth * 2/3 > 1000) ? windowWidth * 2/3 : 1000);
@@ -339,7 +358,6 @@ function setup(){
   res = 1;
   eleCoords = [];
   showAbbr = false;
-  atoms = [];
   eleString = "HHeLiBeBCBOFNeNaMgAlSiPSClArKCa";
   moleculeMass = 0;
   master_arr = [];
@@ -496,7 +514,7 @@ function addAtom(){
   if (a !== "Choose an atom"){
     var n = new Atom(a);
     if (selected){
-      console.log("selected.canBond: " + selected.canBond(numBonds));
+      console.log("selected.canBond: " + numBonds + " " + selected.canBond(numBonds));
       console.log("n.canBond: " + n.canBond(numBonds));
     }
     if (atoms.length == 0){
@@ -519,8 +537,9 @@ function addAtom(){
             return;
           }
         }
-        resetField(document.getElementById("aang"));
+        //resetField(document.getElementById("aang"));
         n.bond(selected,numBonds);
+        console.log("num bonds: " + numBonds);
 
         atoms.push(n);
         selected = false;
@@ -571,6 +590,9 @@ function draw(){
   noFill();
   stroke(100);
   strokeWeight(4);
+  for (var i = 0;i<bonds.length;i++){
+    bonds[i].display();
+  }
   if (selected){
     ellipse(selected.pos2D.x,selected.pos2D.y,40*res,40*res);
     if (selected.canBond(1)){
