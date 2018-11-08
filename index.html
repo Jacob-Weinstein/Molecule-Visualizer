@@ -22,12 +22,21 @@
         position:absolute;
       }
       #menu-add {
+        position:relative;
         display:inline-block;
         left: 0;
         float:right;
+        z-index: 1;
+      }
+      #name {
+        z-index: 1;
       }
       #toaster {
-        position: relative;
+        position: fixed;
+        float:right;
+        right: 2em;
+        bottom: 2em;
+        z-index: 100;
       }
       div.btn.btn-clear.float-right {
         background-color: transparent;
@@ -39,6 +48,11 @@
       .pointer {
         cursor: context-menu;
       }
+      .toast {
+        width: 200px;
+        z-index: 100;
+      }
+
     </style>
   </head>
   <body>
@@ -60,18 +74,16 @@
     <div id="window">
       <div id="scripter">
         <script src="worker.js"></script>
-        <div id="toaster"></div>
       </div>
       <div id="menu-add" class="card">
-
         <div class="card-header">
           <div class="card-title h5">
             <div class="form-group">
               <!--<label class="form-label" for="name">Name</label>-->
-              <input class="form-input" id="name" placeholder="Title">
+              <input class="form-input" id="name" placeholder="Enter molecule title">
             </div>
           </div>
-          <div class="card-subtitle text-gray">Subtitle</div>
+          <div class="card-subtitle text-gray">Design a molecule</div>
         </div>
         <div class="card-body">
           <ul class="tab tab-block">
@@ -85,7 +97,7 @@
           <div id="edit" class="tab-result" style="display:inline-block">
             <div class="form-group">
               <select class="form-select mh" id="selector">
-                <option hidden>Choose an atom</option>
+                <option hidden>Select an atom</option>
                 <option value="H">Hydrogen</option>
                 <option value="He">Helium</option>
                 <option value="Li">Lithium</option>
@@ -97,6 +109,7 @@
                 <option value="F">Fluorine</option>
                 <option value="Ne">Neon</option>
               </select>
+              <input id="num-b" class="slider tooltip" type="range" min="1" max="3" value="1" oninput="this.setAttribute('value', this.value);">
             </div>
             <div id="firstAtom">
               <button id="add-atom" class="btn btn-primary" onclick="addAtom()">Add atom</button>
@@ -104,6 +117,10 @@
           </div>
           <div id="export" class="tab-result" style="display:none">
             <div class="form-group">
+              <label class="form-checkbox">
+                <input type="checkbox" id="t-display">
+                <i class="form-icon"></i> Display title
+              </label>
               <label class="form-switch">
                 <input type="checkbox" id="view-type">
                 <i class="form-icon"></i> 3D View
@@ -118,6 +135,6 @@
         </div>
       </div>
     </div>
-
+    <div id="toaster"></div>
   </body>
 </html>
