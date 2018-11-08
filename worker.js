@@ -45,13 +45,23 @@ Bond.prototype.display = function(){
   //rotate(ang-90);
   /*for (var i = 0;i<this.num;i++){
     line(-this.num/2*5+5*i,-distance,-this.num/2*5+5*i,0);
+    line(-this.num/2*5+5ix)
     //console.log("i: " +i);
     //line(midpoint.x - (distance / 4) * cos(ang), midpoint.y - (distance / 4) * sin(ang), midpoint.x - (distance / 4) * cos(ang + 180), midpoint.y - (distance / 4) * sin(ang + 180));
   }*/
+
+  translate(this.a2.pos2D.x,this.a2.pos2D.y);
+  rotate(ang+90);
   for (var i = 0;i<this.num;i++){
-    //line(-distance/4-this.num/2*5+5*i,-distance/4,distance/4-this.num/2*5+5*i,distance/4);
-    line(this.a1.getPos2D().x+cos(ang+10*i)*20, this.a1.getPos2D().y+sin(ang+10*i)*20, this.a2.getPos2D().x-cos(180+ang+10*i)*20+10*i, this.a2.getPos2D().y-sin(180+ang+10*i)*20);
+    //display lines for tentative bonds
+    //line(selected.pos2D.x+cos(aaang)*20+i*10, selected.pos2D.y+sin(aaang)*20+i*10, selected.pos2D.x+cos(aaang)*80+i*10, selected.pos2D.y+sin(aaang)*80+i*10);
+    line(-this.num/2*5+10*i,20,-this.num/2*5+10*i,80);
   }
+  /*for (var i = 0;i<this.num;i++){
+    //line(-distance/4-this.num/2*5+5*i,-distance/4,distance/4-this.num/2*5+5*i,distance/4);
+    //line(this.a1.getPos2D().x+cos(ang+10*i)*20, this.a1.getPos2D().y+sin(ang+10*i)*20, this.a2.getPos2D().x-cos(180+ang-10*i)*20, this.a2.getPos2D().y-sin(180+ang-10*i)*20);
+    line(this.a1.getPos2D().x+cos(ang)*20+i*10*cos(ang), this.a1.getPos2D().y+sin(ang)*20+i*10*sin(ang), this.a2.getPos2D().x-cos(ang)*20+i*10, this.a2.getPos2D().y-sin(ang)*20+i*10);
+  }*/
   pop();
   this.displayed = true;
 }
@@ -92,10 +102,10 @@ Atom.prototype.getId = function(){
 }
 Atom.prototype.canBond = function(b){
   if (this.data[0] === "H" || this.data[0] === "He"){
-		console.log(this.id + " has " + this.data[5][0] + " valence electrons");
+		//console.log(this.id + " has " + this.data[5][0] + " valence electrons");
     return (this.data[5][0] + b) <= 2;
   }
-  console.log(this.id + " has " + this.data[5][this.data[5].length-1] + " valence electrons and " + (this.data[5][this.data[5].length-1]+b));
+  //console.log(this.id + " has " + this.data[5][this.data[5].length-1] + " valence electrons and " + (this.data[5][this.data[5].length-1]+b));
   return (this.data[5][this.data[5].length-1] + b) <= 8;
 }
 Atom.prototype.getNumBondedTo = function(){//not even sure what this was supposed to do, possibly deprecated due to addition of electron configs
@@ -114,7 +124,7 @@ Atom.prototype.getValence = function(){
   return this.data[5][this.data[5].length-1];
 };
 Atom.prototype.setValence = function(num){
-  console.log(this.data);
+  //console.log(this.data);
   this.data[5][this.data[5].length-1] = num;
 }
 Atom.prototype.bond = function(other, num){
@@ -145,7 +155,7 @@ Atom.prototype.setPos2D = function(newX, newY){
   this.pos2D.x = newX;
   this.pos2D.y = newY;
   eleCoords.push({x: newX, y: newY});
-  console.log(this.id + " has been set to (" + this.pos2D.x + "," + this.pos2D.y + ")");
+  //console.log(this.id + " has been set to (" + this.pos2D.x + "," + this.pos2D.y + ")");
 }
 Atom.prototype.setPos3D = function(newX, newY, newZ){
   this.pos3D.x = newX;
@@ -328,7 +338,6 @@ function coordsIntersect(x, y){
 function openTab(tabr, act){
   var tabrs = document.getElementsByClassName("tab-result");
   var tabs = document.getElementsByClassName("tab-item");
-  console.log(1);
   for (var i = 0;i<tabrs.length;i++){
     tabrs[i].style.display = "none";
     console.log("a");
@@ -424,12 +433,12 @@ function setup(){
     finstr += "<tr><td>"+display_arr[i][0]+"</td><td>"+display_arr[i][1]+"</td><td>"+((indis[i]*display_arr[i][1])/moleculeMass).toFixed(2)+"</td></tr>";
   }
 
-  document.getElementById("t-full").innerHTML += finstr;
-  document.getElementById("mass-p").innerHTML = "Gram-formula mass: " + moleculeMass;
+  //document.getElementById("t-full").innerHTML += finstr;
+  //document.getElementById("mass-p").innerHTML = "Gram-formula mass: " + moleculeMass;
   testH = new Atom("H");
   testH2 = new Atom("H");
   testH.bond(testH2,1);
-  console.log("testH bonded to testH2: " + testH2.isBondedTo(testH));
+  //console.log("testH bonded to testH2: " + testH2.isBondedTo(testH));
   //testH.setPos(width/2,height/2);
   //testH2.setPos(width/2+180,height/2+70);
 
@@ -503,6 +512,11 @@ function toast(status, msg){
 function updateTable(n){
   var mass = n.getMass();
   var table = document.getElementById("t-actual");
+  var cur = parseFloat(document.getElementById("mass-p").innerText);
+  console.log(cur);
+  cur += mass;
+  document.getElementById("mass-p").innerText = cur;
+  //display_arr.push([])
 }
 function resetField(f){
   var a = document.getElementById(f);
@@ -514,8 +528,8 @@ function addAtom(){
   if (a !== "Choose an atom"){
     var n = new Atom(a);
     if (selected){
-      console.log("selected.canBond: " + numBonds + " " + selected.canBond(numBonds));
-      console.log("n.canBond: " + n.canBond(numBonds));
+      //console.log("selected.canBond: " + numBonds + " " + selected.canBond(numBonds));
+      //console.log("n.canBond: " + n.canBond(numBonds));
     }
     if (atoms.length == 0){
       atoms.push(n);
@@ -549,9 +563,9 @@ function addAtom(){
         console.log("selected atom cannot bond");
         return;
       }
-      updateTable(n);
     }
     updateComp();
+    //updateTable(n);
   }
 }
 function draw(){
@@ -588,7 +602,7 @@ function draw(){
       //console.log(atoms[i].pos2D.x + "," + atoms[i].pos2D.y);
   }
   noFill();
-  stroke(100);
+  stroke(100,100,100,100);
   strokeWeight(4);
   for (var i = 0;i<bonds.length;i++){
     bonds[i].display();
@@ -611,6 +625,9 @@ function draw(){
       }
       pop();
       noStroke();
+      if (dist(mouseX,mouseY,width/2+selected.pos2D.x+cos(aaang)*100, height/2+selected.pos2D.y+sin(aaang)*100) <= 20){
+        fill(75,75,75,100);
+      }
       ellipse(selected.pos2D.x+cos(aaang)*100, selected.pos2D.y+sin(aaang)*100, 40*res,40*res);
     }
 
@@ -636,7 +653,11 @@ function draw(){
 }
 function mouseClicked(){
   if (selected && mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height){
-    addAtom();
+    var aaang = Math.round((atan2(height/2+selected.pos2D.y-mouseY,width/2+selected.pos2D.x-mouseX)+180)/grit)*grit;
+    if (dist(mouseX, mouseY, width/2+selected.pos2D.x+cos(aaang)*100, height/2+selected.pos2D.y+sin(aaang)*100) <= 20*res){
+      addAtom();
+    }
+
   }
   for (var i = 0;i<atoms.length;i++){
     if (atoms[i].hover2D()){
