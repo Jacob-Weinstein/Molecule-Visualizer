@@ -7,9 +7,11 @@
 					- fix Atom.isBondedTo()
 */
 var moleculeMass;
+var nodes = [];
 var input;
 var selected;
 var duration = 5000, grit = 18;
+var bonds3D = [];
 
 var polyAtomics;
 var eleString;
@@ -29,6 +31,8 @@ function Bond(a1, a2, num){
   this.a2 = a2;
   this.num = num;
   this.displayed = false;
+  this.len = a1.data[7][num-1]+a2.data[7][num-1];
+  console.log(this.len);
 }
 Bond.prototype.changeNum = function(n){
   this.num = n;
@@ -40,28 +44,16 @@ Bond.prototype.display = function(){
   push();
   stroke(0,0,0);
   strokeWeight(2);
-  //translate(midpoint.x,midpoint.y);
-  //translate(this.a1.pos2D.x,this.a2.pos2D.y);
-  //rotate(ang-90);
-  /*for (var i = 0;i<this.num;i++){
-    line(-this.num/2*5+5*i,-distance,-this.num/2*5+5*i,0);
-    line(-this.num/2*5+5ix)
-    //console.log("i: " +i);
-    //line(midpoint.x - (distance / 4) * cos(ang), midpoint.y - (distance / 4) * sin(ang), midpoint.x - (distance / 4) * cos(ang + 180), midpoint.y - (distance / 4) * sin(ang + 180));
-  }*/
+
 
   translate(this.a2.pos2D.x,this.a2.pos2D.y);
   rotate(ang+90);
   for (var i = 0;i<this.num;i++){
     //display lines for tentative bonds
     //line(selected.pos2D.x+cos(aaang)*20+i*10, selected.pos2D.y+sin(aaang)*20+i*10, selected.pos2D.x+cos(aaang)*80+i*10, selected.pos2D.y+sin(aaang)*80+i*10);
-    line(-this.num/2*5+10*i,20,-this.num/2*5+10*i,80);
+    line(-this.num/2*5+10*i,20,-this.num/2*5+10*i,/*20+this.len/2*/80);
   }
-  /*for (var i = 0;i<this.num;i++){
-    //line(-distance/4-this.num/2*5+5*i,-distance/4,distance/4-this.num/2*5+5*i,distance/4);
-    //line(this.a1.getPos2D().x+cos(ang+10*i)*20, this.a1.getPos2D().y+sin(ang+10*i)*20, this.a2.getPos2D().x-cos(180+ang-10*i)*20, this.a2.getPos2D().y-sin(180+ang-10*i)*20);
-    line(this.a1.getPos2D().x+cos(ang)*20+i*10*cos(ang), this.a1.getPos2D().y+sin(ang)*20+i*10*sin(ang), this.a2.getPos2D().x-cos(ang)*20+i*10, this.a2.getPos2D().y-sin(ang)*20+i*10);
-  }*/
+
   pop();
   this.displayed = true;
 }
@@ -198,6 +190,29 @@ Atom.prototype.display2D = function(){
   //}
   pop();
 }
+Atom.prototype.display3D = function(){
+
+}
+function getNumBondedTo(a){
+  var num = 0;
+  for (var i = 0;i<bonds.length;i++){
+    if (a.getId() === bonds[i].getA1().getId() || a.getId() === bonds[i].getA2().getId()){
+      num++;
+    }
+  }
+  return num;
+}
+function getBondedTo(a){
+  var at = [];
+  for (var i = 0;i<bonds.length;i++){
+    if (a.getId() === bonds[i].getA1().getId()){
+      at.push(bonds[i].getA1());
+    }else if (a.getId() === bonds[i].getA2().getId()){
+      at.push(bonds[i].getA2());
+    }
+  }
+  return at;
+}
 function findMass(id){//deprecated, will remove later and replace with findData(id)
   for (var i = 0;i<elementData.length;i++){
     if (elementData[i][0] === id){
@@ -314,18 +329,6 @@ function getComposition(rawr, mult){
     }
   }
   return vals;
-}
-function Card(data){
-  this.data = data;
-}
-Card.prototype.setPos = function(x, y){
-  this.x = x;
-  this.y = y;
-}
-Card.prototype.display = function(){
-  push();
-  fill(255);
-  pop();
 }
 function coordsIntersect(x, y){
   for (var i = 0;i<eleCoords.length;i++){
@@ -481,6 +484,57 @@ function setup(){
 function updateComp(){
 
 }
+function getBondAngles3D(a){
+  var angs = [];
+  //var
+  return angs;
+}
+function convertTo3D(){
+
+  if (atoms.length == 0){
+    return;
+  }
+  atoms[0].setPos3D(0, 0, 0);
+  for (var i = 1;i<atoms.length;i++){
+    //AXE
+    var atom = atoms[i];
+    var bds = getBon
+    var X = getNumBondedTo(atom);
+    var E = (8 - atom.getValence())/2;
+
+    if (X == 2){
+      if (E == 0){
+        bonds3D.push()
+      } else if (E == 1){
+
+      }
+    } else if (X == 3){
+      if (E == 0){
+
+      }else if (E == 1){
+
+      }else if (E == 2){
+
+      }
+    } else if (X == 4){
+
+    } else if (x == 5){
+
+    } else if (X == 6){
+
+    }
+
+    if (!atom.hasSetPos3D()){
+
+    }
+  }
+}
+function Bond3D(or, an1, an2, r){
+  this.origin = or;
+  this.ang1 = an1;
+  this.ang2 = an2;
+  this.radius = r;
+}
 function toast(status, msg){
   var toaster = document.getElementById("toaster");
   var newToast = document.createElement("div");
@@ -536,14 +590,15 @@ function addAtom(){
 
       atoms[0].setPos2D(0,0);
       atoms[0].setPos3D(0,0,0);
-      console.log(a);
+      console.log(atoms[0].getPos2D());
     }else {
       if (selected && selected.canBond(numBonds) && n.canBond(numBonds)){
         //var aang = document.getElementById("aang").value;
         var aang = Math.round((atan2(height/2+selected.pos2D.y-mouseY,width/2+selected.pos2D.x-mouseX)+180)/grit)*grit;
         console.log("bonding angle: " + aang);
-        console.log("old x: " + selected.pos2D.x +" new x: " + (selected.pos2D.x+cos(aang)*100));
-        console.log("old y: " + selected.pos2D.y + " new y: "+(selected.pos2D.y+sin(aang)*100));
+        var s = n.data[7][numBonds-1] + selected.data[7][numBonds-1];
+        console.log("old x: " + selected.pos2D.x +" new x: " + (selected.pos2D.x+cos(aang)*s));
+        console.log("old y: " + selected.pos2D.y + " new y: "+(selected.pos2D.y+sin(aang)*s));
         n.setPos2D(selected.pos2D.x+cos(aang)*100,selected.pos2D.y+sin(aang)*100);
         for (var i = 0;i<atoms.length;i++){
           if (dist(atoms[i].pos2D.x,atoms[i].pos2D.y,n.pos2D.x,n.pos2D.y) < 41){
@@ -570,18 +625,8 @@ function addAtom(){
 }
 function draw(){
   molName = document.getElementById("name").value;
-  var ele = document.getElementById("num-b").value;
+  var D3 = document.getElementById("view-type").checked;
   //console.log(ele);
-  var subscript = [], upper = [];
-  /*for (var i = 0;i<molName.length;i++){
-    if (!isNaN(molName.substr(i,1))){
-      subscript.push(molName.substr(i,1));
-      upper.push(" ");
-    }else{
-      subscript.push(" ");
-      upper.push(molName.substr(i,1));
-    }
-  }*/
   background(255,255,255);
   fill(255);
   stroke(0);
@@ -589,49 +634,59 @@ function draw(){
   push();
   translate(width/2, height/2);
   //var t = Math.min(millis()/2000,atoms.length);
-  for (var i = 0;i<atoms.length;i++){
-		/*if (atoms[i].hasSetPos2D() && atoms[i].hover){
-      if (atoms[i].hover2D() && mouseIsPressed){
-        if (!selected.includes(atoms[i])){
-          selected.push(atoms[i]);
-          mouseIsPressed = false;
-          console.log(atoms[i].getId() + " selected");
-        }
-      }*/
-			atoms[i].display2D();
-      //console.log(atoms[i].pos2D.x + "," + atoms[i].pos2D.y);
-  }
-  noFill();
-  stroke(100,100,100,100);
-  strokeWeight(4);
-  for (var i = 0;i<bonds.length;i++){
-    bonds[i].display();
-  }
-  if (selected){
-    ellipse(selected.pos2D.x,selected.pos2D.y,40*res,40*res);
-    if (selected.canBond(1)){
-      var bds = parseInt(document.getElementById("num-b").value);
-      var aaang = Math.round((atan2(height/2+selected.pos2D.y-mouseY,width/2+selected.pos2D.x-mouseX)+180)/grit)*grit;
-      //var ang = atan2(this.a2.getPos2D().y - this.a1.getPos2D().y, this.a2.getPos2D().x - this.a1.getPos2D().x);
+  if (D3){
+    fill(255, 0, 0);
+    for (var i = 0;i<nodes.length;i++){
+      ellipse(nodes[i][0], nodes[i][1], 20*res, 20*res);
+    }
+  }else{
+    for (var i = 0;i<atoms.length;i++){
+  		/*if (atoms[i].hasSetPos2D() && atoms[i].hover){
+        if (atoms[i].hover2D() && mouseIsPressed){
+          if (!selected.includes(atoms[i])){
+            selected.push(atoms[i]);
+            mouseIsPressed = false;
+            console.log(atoms[i].getId() + " selected");
+          }
+        }*/
+        atoms[i].display2D();
 
-      fill(100,100,100,100);
-      push();
-      translate(selected.pos2D.x, selected.pos2D.y);
-      rotate(aaang-90);
-      for (var i = 0;i<bds;i++){
-        //display lines for tentative bonds
-        //line(selected.pos2D.x+cos(aaang)*20+i*10, selected.pos2D.y+sin(aaang)*20+i*10, selected.pos2D.x+cos(aaang)*80+i*10, selected.pos2D.y+sin(aaang)*80+i*10);
-        line(-bds/2*5+10*i,20,-bds/2*5+10*i,80);
-      }
-      pop();
-      noStroke();
-      if (dist(mouseX,mouseY,width/2+selected.pos2D.x+cos(aaang)*100, height/2+selected.pos2D.y+sin(aaang)*100) <= 20){
-        fill(75,75,75,100);
-      }
-      ellipse(selected.pos2D.x+cos(aaang)*100, selected.pos2D.y+sin(aaang)*100, 40*res,40*res);
+        console.log(atoms[i].pos2D.x + "," + atoms[i].pos2D.y);
     }
 
+    noFill();
+    stroke(100,100,100,100);
+    strokeWeight(4);
+    for (var i = 0;i<bonds.length;i++){
+      bonds[i].display();
+    }
+    if (selected){
+      ellipse(selected.pos2D.x,selected.pos2D.y,40*res,40*res);
+      if (selected.canBond(1)){
+        var bds = parseInt(document.getElementById("num-b").value);
+        var aaang = Math.round((atan2(height/2+selected.pos2D.y-mouseY,width/2+selected.pos2D.x-mouseX)+180)/grit)*grit;
+        //var ang = atan2(this.a2.getPos2D().y - this.a1.getPos2D().y, this.a2.getPos2D().x - this.a1.getPos2D().x);
+
+        fill(100,100,100,100);
+        push();
+        translate(selected.pos2D.x, selected.pos2D.y);
+        rotate(aaang-90);
+        for (var i = 0;i<bds;i++){
+          //display lines for tentative bonds
+          //line(selected.pos2D.x+cos(aaang)*20+i*10, selected.pos2D.y+sin(aaang)*20+i*10, selected.pos2D.x+cos(aaang)*80+i*10, selected.pos2D.y+sin(aaang)*80+i*10);
+          line(-bds/2*5+10*i,20,-bds/2*5+10*i,80*res);
+        }
+        pop();
+        noStroke();
+        if (dist(mouseX,mouseY,width/2+selected.pos2D.x+cos(aaang)*100, height/2+selected.pos2D.y+sin(aaang)*100) <= 20){
+          fill(75,75,75,100);
+        }
+        ellipse(selected.pos2D.x+cos(aaang)*100, selected.pos2D.y+sin(aaang)*100, 40*res,40*res);
+      }
+
+    }
   }
+
   pop();
   push();
 
@@ -652,21 +707,22 @@ function draw(){
   //console.log(selected);
 }
 function mouseClicked(){
-  if (selected && mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height){
-    var aaang = Math.round((atan2(height/2+selected.pos2D.y-mouseY,width/2+selected.pos2D.x-mouseX)+180)/grit)*grit;
-    if (dist(mouseX, mouseY, width/2+selected.pos2D.x+cos(aaang)*100, height/2+selected.pos2D.y+sin(aaang)*100) <= 20*res){
-      addAtom();
-    }
+  if (!D3){
+    if (selected && mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height){
+      var aaang = Math.round((atan2(height/2+selected.pos2D.y-mouseY,width/2+selected.pos2D.x-mouseX)+180)/grit)*grit;
+      if (dist(mouseX, mouseY, width/2+selected.pos2D.x+cos(aaang)*100, height/2+selected.pos2D.y+sin(aaang)*100) <= 20*res){
+        addAtom();
+      }
 
-  }
-  for (var i = 0;i<atoms.length;i++){
-    if (atoms[i].hover2D()){
-      if (atoms[i] !== selected){
-        selected = atoms[i];
-      }else{
-        selected = false;
+    }
+    for (var i = 0;i<atoms.length;i++){
+      if (atoms[i].hover2D()){
+        if (atoms[i] !== selected){
+          selected = atoms[i];
+        }else{
+          selected = false;
+        }
       }
     }
   }
-
 }
