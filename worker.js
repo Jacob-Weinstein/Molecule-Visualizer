@@ -74,6 +74,9 @@ function Atom(abbr){
   this.data = JSON.parse(JSON.stringify(rawData));//protons, electron configuration, ox. states
   this.id = this.data[0] + atoms.length;
 }
+Atom.prototype.getId = function(){
+  return this.id;
+}
 Atom.prototype.getMass = function(){
   return this.data[1];
 }
@@ -158,7 +161,7 @@ Atom.prototype.hasSetPos2D = function(){
   return this.pos2D.x != null && this.pos2D.y != null;
 }
 Atom.prototype.hasSetPos3D = function(){
-  return this.pos3D.x != null && this.pos3D.y != null && this.pos3D.z != null;
+  return this.pos3D.x != null && this.pos3D.y != null && this.pos3D.z != null;//looks correct
 }
 Atom.prototype.hover2D = function(){
   return dist(mouseX, mouseY, this.pos2D.x + width / 2, this.pos2D.y + height / 2) < res * 20;
@@ -206,9 +209,9 @@ function getBondedTo(a){
   var at = [];
   for (var i = 0;i<bonds.length;i++){
     if (a.getId() === bonds[i].getA1().getId()){
-      at.push(bonds[i].getA1());
-    }else if (a.getId() === bonds[i].getA2().getId()){
       at.push(bonds[i].getA2());
+    }else if (a.getId() === bonds[i].getA2().getId()){
+      at.push(bonds[i].getA1());
     }
   }
   return at;
@@ -489,45 +492,104 @@ function getBondAngles3D(a){
   //var
   return angs;
 }
-function convertTo3D(){
-
-  if (atoms.length == 0){
-    return;
+function startConversion3D(){
+  bonds3D = [];
+  if (atoms.length > 0){
+    if (!atoms[0].hasSetPos3D()){
+      atoms[0].setPos3D(0, 0, 0);
+      nodes.push([0, 0, 0]);
+    }
+    convertTo3D(atoms[0]);
   }
-  atoms[0].setPos3D(0, 0, 0);
-  for (var i = 1;i<atoms.length;i++){
-    //AXE
-    var atom = atoms[i];
-    var bds = getBon
-    var X = getNumBondedTo(atom);
-    var E = (8 - atom.getValence())/2;
+}
+function convertTo3D(curAtom){
+    console.log("\nbeginning of conversion for atom " + curAtom.getId());
+    var bds = getBondedTo(curAtom);
+    var X = bds.length;
+    var E = (8 - curAtom.getValence())/2;
 
+    var angs = [];
     if (X == 2){
       if (E == 0){
-        bonds3D.push()
+        angs.push([180, 0]);
+        angs.push([0, 0]);
       } else if (E == 1){
-
+        angs.push([150, 0]);
+        angs.push([3, 0]);
+      } else if (E == 2){
+        angs.push([30, 180]);
+        angs.push([150, 180]);
       }
     } else if (X == 3){
       if (E == 0){
+        angs.push([0, 0])
+        angs.push([120, 0]);
+        angs.push([240, 0]);
+      }else if (E == 1){
+        angs.push([0, 30])
+        angs.push([120, 30]);
+        angs.push([240, 30]);
+      }else if (E == 2){
+        angs.push([0, 0]);
+        angs.push([90, 0]);
+        angs.push([180, 0]);
+      }
+    } else if (X == 4){
+      if (E == 0){
+        angs.push([0,109.5]);
+        angs.push([109.5,0]);
+        angs.push([240,109.5]);
+        angs.push([120,0]);
+      }else if (E == 1){
+
+      }else if (E == 2){
 
       }else if (E == 1){
 
       }else if (E == 2){
 
       }
-    } else if (X == 4){
-
-    } else if (x == 5){
+    } else if (X == 5){
 
     } else if (X == 6){
 
     }
+    console.log("X: " + X + "\nE:" + E);
+    console.log("angs.length : " + angs.length);
+    var bdsLeft = [];
+    for (var i = 0;i<bds.length;i++){
+      var angg = angs[i];
+      console.log("angg.length = " + angg.length);
+      console.log("inside loop i = " + i);
+      console.log("bds[i].hasSetPos3D() : " + bds[i].hasSetPos3D());
+      console.log(bds[i].getId());
+      if (!bds[i].hasSetPos3D()){
+        if (angg.length > 0){
+          bds[i].setPos3D(
+            40 * sin(angg[0]) * cos(angg[1]),
+            40 * sin(angg[1]) * sin(angg[1]),
+            40 * cos(angg[0])
+          );
 
-    if (!atom.hasSetPos3D()){
+          nodes.push(
+            [
+              40 * sin(angg[0]) * cos(angg[1]),
+              40 * sin(angg[1]) * sin(angg[1]),
+              40 * cos(angg[0])
+            ]
+          );
+          console.log("added node");
+        }
+
+        bdsLeft.push(bds[i]);
+        console.log("reached inside of loop");
+      }
 
     }
-  }
+    console.log("bdsLeft.length after bds loop: " + bdsLeft.length);
+    for (var i = 0;i<bdsLeft.length;i++){
+      convertTo3D(bdsLeft[i]);
+    }
 }
 function Bond3D(or, an1, an2, r){
   this.origin = or;
@@ -589,8 +651,7 @@ function addAtom(){
       atoms.push(n);
 
       atoms[0].setPos2D(0,0);
-      atoms[0].setPos3D(0,0,0);
-      console.log(atoms[0].getPos2D());
+
     }else {
       if (selected && selected.canBond(numBonds) && n.canBond(numBonds)){
         //var aang = document.getElementById("aang").value;
@@ -612,7 +673,6 @@ function addAtom(){
 
         atoms.push(n);
         selected = false;
-        console.log(a);
       }else{
         toast("error","Selected atom cannot bond");
         console.log("selected atom cannot bond");
@@ -623,10 +683,47 @@ function addAtom(){
     //updateTable(n);
   }
 }
+var rotateZ3D = function(theta) {
+    var sin_t = sin(theta);
+    var cos_t = cos(theta);
+
+    for (var n = 0; n < nodes.length; n++) {
+        var node = nodes[n];
+        var x = node[0];
+        var y = node[1];
+        node[0] = x * cos_t - y * sin_t;
+        node[1] = y * cos_t + x * sin_t;
+    }
+};
+var rotateY3D = function(theta) {
+    var sin_t = sin(theta);
+    var cos_t = cos(theta);
+
+    for (var n = 0; n < nodes.length; n++) {
+        var node = nodes[n];
+        var x = node[0];
+        var z = node[2];
+        node[0] = x * cos_t - z * sin_t;
+        node[2] = z * cos_t + x * sin_t;
+    }
+};
+var rotateX3D = function(theta) {
+    var sin_t = sin(theta);
+    var cos_t = cos(theta);
+
+    for (var n = 0; n < nodes.length; n++) {
+        var node = nodes[n];
+        var y = node[1];
+        var z = node[2];
+        node[1] = y * cos_t - z * sin_t;
+        node[2] = z * cos_t + y * sin_t;
+    }
+};
+var D3 = false;
 function draw(){
   molName = document.getElementById("name").value;
-  var D3 = document.getElementById("view-type").checked;
-  //console.log(ele);
+  D3 = document.getElementById("view-type").checked;
+
   background(255,255,255);
   fill(255);
   stroke(0);
@@ -635,6 +732,7 @@ function draw(){
   translate(width/2, height/2);
   //var t = Math.min(millis()/2000,atoms.length);
   if (D3){
+    console.log("Num nodes: " + nodes.length);
     fill(255, 0, 0);
     for (var i = 0;i<nodes.length;i++){
       ellipse(nodes[i][0], nodes[i][1], 20*res, 20*res);
@@ -652,6 +750,8 @@ function draw(){
         atoms[i].display2D();
 
         console.log(atoms[i].pos2D.x + "," + atoms[i].pos2D.y);
+        console.log(atoms[i].pos3D.x + "," + atoms[i].pos3D.y + "," + atoms[i].pos3D.z);
+        console.log(atoms[i].hasSetPos3D());
     }
 
     noFill();
@@ -686,25 +786,23 @@ function draw(){
 
     }
   }
-
-  pop();
-  push();
-
   pop();
 
   fill(0,0,0);
   textSize(25);
-  /*text(upper,width/2, 80);
-  for (var i = 0;i<upper.length;i++){
-    text(upper[i],width/2-(i-upper.length/2)*25,80);
-    text(subscript[i],width/2-(i-upper.length/2)*25,85);
-  }*/
-  //text("1234567890",width/2,100);
   if (document.getElementById("t-display").checked){
     text(molName,width/2,85);
   }
-  //console.log("num atoms:" + atoms.length);
-  //console.log(selected);
+  startConversion3D();
+  noLoop();
+}
+function mouseDragged(){
+  rotateY3D(mouseX - pmouseX);
+  rotateX3D(mouseY - pmouseY);
+  loop();
+}
+function mouseMoved(){
+  loop();
 }
 function mouseClicked(){
   if (!D3){
